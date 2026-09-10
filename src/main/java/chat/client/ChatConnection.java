@@ -150,7 +150,6 @@ public final class ChatConnection implements AutoCloseable {
                 } catch (IOException | RuntimeException exception) {
                     // Vis fejlen før future vækker fx konsol-main, som ellers kunne
                     // lukke forbindelsen og skjule den oprindelige fejl.
-                    pending.remove(result);
                     if (!closed.get()) {
                         notifyListener(() -> listener.onError("Netværksfejl: " + detail(exception)));
                         finish("Forbindelsen blev afbrudt.", !quitting.get());

@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ChatServer" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="chat.server.ChatServer" />
+    <module name="mini-chat" />
+    <option name="PROGRAM_PARAMETERS" value="5555" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

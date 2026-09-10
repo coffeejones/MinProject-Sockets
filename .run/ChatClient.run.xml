@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ChatClient" type="Application" factoryName="Application" singleton="false">
+    <option name="MAIN_CLASS_NAME" value="chat.client.console.ChatClient" />
+    <module name="mini-chat" />
+    <option name="PROGRAM_PARAMETERS" value="localhost 5555" />
+    <method v="2"><option name="Make" enabled="true" /></method>
+  </configuration>
+</component>

@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ChatApplication (JavaFX)" type="MavenRunConfiguration" factoryName="Maven" singleton="false">
+    <MavenSettings>
+      <option name="myRunnerParameters">
+        <MavenRunnerParameters>
+          <option name="goals"><list><option value="javafx:run" /></list></option>
+          <option name="multimoduleDir" value="$PROJECT_DIR$" />
+          <option name="pomFileName" value="pom.xml" />
+          <option name="workingDirPath" value="$PROJECT_DIR$" />
+        </MavenRunnerParameters>
+      </option>
+    </MavenSettings>
+    <method v="2" />
+  </configuration>
+</component>

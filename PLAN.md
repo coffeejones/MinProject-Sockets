@@ -2,7 +2,7 @@
 
 Planlagt 10. september 2026 ud fra projektformuleringen. Projektet udføres af én person i Java og IntelliJ. Den valgte, obligatoriske udvidelse er en grafisk klient med JavaFX.
 
-Dette dokument beskriver den foreslåede løsning og arbejdsrækkefølge. Funktionerne er endnu ikke implementeret eller testet.
+Dette dokument beskriver den oprindelige løsning og arbejdsrækkefølge. Implementeringen af server, konsolklient og JavaFX-klient er nu gennemført. Se README og docs/TESTS.md for opstart, faktisk teststatus og den resterende personlige generalprøve.
 
 ## 1. Det færdige program
 
@@ -229,4 +229,4 @@ En oplagt mulig AI-situation er vurderingen af, om en trådsikker map alene gør
 
 Forslag til præsentation på højst 15 minutter: 2 minutter om opbygning, 6 minutter til demonstration med tre samtidige klienter og JavaFX, 4 minutter om protokol/tråde/oprydning og 3 minutter om tests samt et kontrolleret, ændret eller afvist AI-forslag.
 
-Næste konkrete arbejdstrin er trin 1: oprette Maven-projektet og få én server og én konsolklient til at udveksle en linje.
+Næste personlige arbejdstrin er at åbne projektet i IntelliJ, læse klasserne trinvis og gennemføre demonstrationsforløbet. AI-dokumentationen skal suppleres med din egen vurdering efter kodegennemgangen.

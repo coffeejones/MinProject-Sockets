@@ -1,0 +1,55 @@
+@startuml
+!pragma layout smetana
+skinparam monochrome true
+skinparam style strictuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam classFontSize 17
+skinparam classAttributeFontSize 15
+skinparam ArrowFontSize 15
+skinparam titleFontSize 21
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classHeaderBackgroundColor white
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+skinparam nodesep 65
+skinparam ranksep 65
+hide circle
+hide empty members
+title Domænemodel — brugere, rum og beskeder
+
+class Bruger {
+  brugernavn
+}
+class Chatrum {
+  navn
+}
+abstract class Besked {
+  tekst
+  tidspunkt
+}
+class Rumbesked
+class Privatbesked
+
+Bruger "0..*" -left- "1" Chatrum : deltager i
+Bruger "1" -- "0..*" Besked : afsender
+Chatrum "1" -- "0..*" Rumbesked : målrum
+Bruger "1" -- "0..*" Privatbesked : modtager
+Besked <|-- Rumbesked
+Besked <|-- Privatbesked
+
+note bottom of Besked
+  Kun brugerbeskeder.
+  Specialisering: {complete, disjoint}
+end note
+legend bottom
+  Bruger = indlogget deltager, ikke en konto. Rum: lobby, java og hygge.
+  Relationerne beskriver afsendelsessituationen; serveren gemmer ikke beskedhistorik.
+  Begreberne er en domænemodel og er ikke alle selvstændige Java-klasser.
+endlegend
+@enduml

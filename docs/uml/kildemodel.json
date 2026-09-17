@@ -1,0 +1,3378 @@
+[
+  {
+    "name": "ChatConnection",
+    "qualifiedName": "ChatConnection",
+    "package": "chat.client",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [
+      "AutoCloseable"
+    ],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/ChatConnection.java",
+    "line": 28,
+    "fields": [
+      {
+        "name": "CONNECT_TIMEOUT_MILLIS",
+        "type": "int",
+        "flags": [
+          "private",
+          "static",
+          "final"
+        ],
+        "initializer": "3000"
+      },
+      {
+        "name": "QUIT_TIMEOUT_SECONDS",
+        "type": "int",
+        "flags": [
+          "private",
+          "static",
+          "final"
+        ],
+        "initializer": "2"
+      },
+      {
+        "name": "listener",
+        "type": "ConnectionListener",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "outgoing",
+        "type": "ExecutorService",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "Executors.newSingleThreadExecutor(Thread.ofPlatform().daemon().name(\"chat-client-send\").factory())"
+      },
+      {
+        "name": "socket",
+        "type": "AtomicReference<Socket>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new AtomicReference<>()"
+      },
+      {
+        "name": "started",
+        "type": "AtomicBoolean",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new AtomicBoolean()"
+      },
+      {
+        "name": "closed",
+        "type": "AtomicBoolean",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new AtomicBoolean()"
+      },
+      {
+        "name": "quitting",
+        "type": "AtomicBoolean",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new AtomicBoolean()"
+      },
+      {
+        "name": "pending",
+        "type": "Set<CompletableFuture<Void>>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "ConcurrentHashMap.newKeySet()"
+      },
+      {
+        "name": "completion",
+        "type": "CompletableFuture<Void>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new CompletableFuture<>()"
+      },
+      {
+        "name": "output",
+        "type": "BufferedWriter",
+        "flags": [
+          "private",
+          "volatile"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "listener",
+            "type": "ConnectionListener"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "connect",
+        "return": "CompletableFuture<Void>",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "host",
+            "type": "String"
+          },
+          {
+            "name": "port",
+            "type": "int"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "send",
+        "return": "CompletableFuture<Void>",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ClientMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "quit",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "close",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "isClosed",
+        "return": "boolean",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "completion",
+        "return": "CompletableFuture<Void>",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "write",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "line",
+            "type": "String"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "enqueue",
+        "return": "CompletableFuture<Void>",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "operation",
+            "type": "IoOperation"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "invalid",
+        "return": "CompletableFuture<Void>",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "receive",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "readFailed",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "exception",
+            "type": "Exception"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "readEnded",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "finish",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "reason",
+            "type": "String"
+          },
+          {
+            "name": "unexpected",
+            "type": "boolean"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "notifyListener",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "notification",
+            "type": "Runnable"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "detail",
+        "return": "String",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "exception",
+            "type": "Exception"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "IoOperation",
+    "qualifiedName": "ChatConnection.IoOperation",
+    "package": "chat.client",
+    "enclosing": "ChatConnection",
+    "anonymous": false,
+    "kind": "INTERFACE",
+    "flags": [
+      "private"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/ChatConnection.java",
+    "line": 232,
+    "fields": [],
+    "methods": [
+      {
+        "name": "run",
+        "return": "void",
+        "flags": [],
+        "parameters": [],
+        "throws": [
+          "IOException"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ConnectionListener",
+    "qualifiedName": "ConnectionListener",
+    "package": "chat.client",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "INTERFACE",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/ConnectionListener.java",
+    "line": 6,
+    "fields": [],
+    "methods": [
+      {
+        "name": "onConnected",
+        "return": "void",
+        "flags": [
+          "default"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "onMessage",
+        "return": "void",
+        "flags": [
+          "default"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onError",
+        "return": "void",
+        "flags": [
+          "default"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onDisconnected",
+        "return": "void",
+        "flags": [
+          "default"
+        ],
+        "parameters": [
+          {
+            "name": "reason",
+            "type": "String"
+          },
+          {
+            "name": "unexpected",
+            "type": "boolean"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ServerListener",
+    "qualifiedName": "ServerListener",
+    "package": "chat.client",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [
+      "Runnable"
+    ],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/ServerListener.java",
+    "line": 12,
+    "fields": [
+      {
+        "name": "input",
+        "type": "BufferedReader",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "messages",
+        "type": "Consumer<ServerMessage>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "failures",
+        "type": "Consumer<Exception>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "finished",
+        "type": "Runnable",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [],
+        "parameters": [
+          {
+            "name": "input",
+            "type": "BufferedReader"
+          },
+          {
+            "name": "messages",
+            "type": "Consumer<ServerMessage>"
+          },
+          {
+            "name": "failures",
+            "type": "Consumer<Exception>"
+          },
+          {
+            "name": "finished",
+            "type": "Runnable"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "run",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ChatClient",
+    "qualifiedName": "ChatClient",
+    "package": "chat.client.console",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [
+      "ConnectionListener"
+    ],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/console/ChatClient.java",
+    "line": 18,
+    "fields": [
+      {
+        "name": "TIME",
+        "type": "DateTimeFormatter",
+        "flags": [
+          "private",
+          "static",
+          "final"
+        ],
+        "initializer": "DateTimeFormatter.ofPattern(\"HH:mm:ss\")"
+      },
+      {
+        "name": "stateLock",
+        "type": "Object",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Object()"
+      },
+      {
+        "name": "connection",
+        "type": "ChatConnection",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new ChatConnection(this)"
+      },
+      {
+        "name": "username",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "room",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "awaitingReply",
+        "type": "MessageType",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": [
+      {
+        "name": "main",
+        "return": "void",
+        "flags": [
+          "public",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "args",
+            "type": "String[]"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "run",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "host",
+            "type": "String"
+          },
+          {
+            "name": "port",
+            "type": "int"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "readConsole",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "handleInput",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "line",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "send",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ClientMessage"
+          },
+          {
+            "name": "expectedReply",
+            "type": "MessageType"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onConnected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "onMessage",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onError",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onDisconnected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "reason",
+            "type": "String"
+          },
+          {
+            "name": "unexpected",
+            "type": "boolean"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "releaseInput",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "printHelp",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ChatApplication",
+    "qualifiedName": "ChatApplication",
+    "package": "chat.client.gui",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": "Application",
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/gui/ChatApplication.java",
+    "line": 34,
+    "fields": [
+      {
+        "name": "root",
+        "type": "BorderPane",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new BorderPane()"
+      },
+      {
+        "name": "messages",
+        "type": "ObservableList<ServerMessage>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "FXCollections.observableArrayList()"
+      },
+      {
+        "name": "hostField",
+        "type": "TextField",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "field(\"host-field\", \"Serveradresse\", \"localhost\")"
+      },
+      {
+        "name": "portField",
+        "type": "TextField",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "field(\"port-field\", \"Port\", \"5555\")"
+      },
+      {
+        "name": "usernameField",
+        "type": "TextField",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "field(\"username-field\", \"Brugernavn\", \"Fx alice\")"
+      },
+      {
+        "name": "publicField",
+        "type": "TextField",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "field(\"public-message-field\", \"Besked til rummet\", \"Skriv en besked \\u2026\")"
+      },
+      {
+        "name": "recipientField",
+        "type": "TextField",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "field(\"private-recipient-field\", \"Privat modtager\", \"Brugernavn\")"
+      },
+      {
+        "name": "privateField",
+        "type": "TextField",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "field(\"private-message-field\", \"Privat besked\", \"Skriv privat \\u2026\")"
+      },
+      {
+        "name": "connectButton",
+        "type": "Button",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "button(\"connect-button\", \"Forbind\", \"primary-button\")"
+      },
+      {
+        "name": "cancelLoginButton",
+        "type": "Button",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "button(\"cancel-login-button\", \"Afbryd\", \"secondary-button\")"
+      },
+      {
+        "name": "publicButton",
+        "type": "Button",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "button(\"send-message-button\", \"Send\", \"primary-button\")"
+      },
+      {
+        "name": "privateButton",
+        "type": "Button",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "button(\"send-private-button\", \"Send privat\", \"secondary-button\")"
+      },
+      {
+        "name": "disconnectButton",
+        "type": "Button",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "button(\"disconnect-button\", \"Afbryd\", \"secondary-button\")"
+      },
+      {
+        "name": "reconnectButton",
+        "type": "Button",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "button(\"reconnect-button\", \"Forbind igen\", \"primary-button\")"
+      },
+      {
+        "name": "roomSelector",
+        "type": "ComboBox<String>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new ComboBox<>(FXCollections.observableArrayList(ChatProtocol.ROOMS))"
+      },
+      {
+        "name": "messageList",
+        "type": "ListView<ServerMessage>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new ListView<>(messages)"
+      },
+      {
+        "name": "loginFeedback",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "feedback(\"login-feedback\")"
+      },
+      {
+        "name": "chatFeedback",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "feedback(\"chat-feedback\")"
+      },
+      {
+        "name": "userLabel",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Label()"
+      },
+      {
+        "name": "statusLabel",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Label(\"Ikke forbundet\")"
+      },
+      {
+        "name": "roomDescription",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Label()"
+      },
+      {
+        "name": "publicLabel",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Label(\"Besked til rummet\")"
+      },
+      {
+        "name": "stage",
+        "type": "Stage",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "loginView",
+        "type": "Node",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "chatView",
+        "type": "Node",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "connection",
+        "type": "ChatConnection",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "pending",
+        "type": "Pending",
+        "flags": [
+          "private"
+        ],
+        "initializer": "Pending.NONE"
+      },
+      {
+        "name": "username",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "currentRoom",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "sentText",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "lastNetworkError",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "connected",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "loggedIn",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "closing",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "chatVisible",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "updatingRoom",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "stopping",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "generation",
+        "type": "long",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": [
+      {
+        "name": "start",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "stage",
+            "type": "Stage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "buildLogin",
+        "return": "Node",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "buildChat",
+        "return": "Node",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "submitLogin",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "listener",
+        "return": "ConnectionListener",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "type": "long"
+          },
+          {
+            "name": "requestedName",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "receive",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "changeRoom",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "sendPublic",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "sendPrivate",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "sendCommand",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ClientMessage"
+          },
+          {
+            "name": "operation",
+            "type": "Pending"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "clearIfUnchanged",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "field",
+            "type": "TextField"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "canSend",
+        "return": "boolean",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "disconnect",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "showLogin",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "showChat",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "restoreRoomSelection",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "refreshControls",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "showFeedback",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "text",
+            "type": "String"
+          },
+          {
+            "name": "error",
+            "type": "boolean"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onFx",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "type": "long"
+          },
+          {
+            "name": "update",
+            "type": "Runnable"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "closeConnection",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "stop",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "field",
+        "return": "TextField",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          },
+          {
+            "name": "accessibleText",
+            "type": "String"
+          },
+          {
+            "name": "prompt",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "button",
+        "return": "Button",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          },
+          {
+            "name": "text",
+            "type": "String"
+          },
+          {
+            "name": "styleClass",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "labeled",
+        "return": "VBox",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "text",
+            "type": "String"
+          },
+          {
+            "name": "field",
+            "type": "Node"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "feedback",
+        "return": "Label",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "visible",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "node",
+            "type": "Node"
+          },
+          {
+            "name": "visible",
+            "type": "boolean"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "main",
+        "return": "void",
+        "flags": [
+          "public",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "args",
+            "type": "String[]"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "Pending",
+    "qualifiedName": "ChatApplication.Pending",
+    "package": "chat.client.gui",
+    "enclosing": "ChatApplication",
+    "anonymous": false,
+    "kind": "ENUM",
+    "flags": [
+      "private"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/gui/ChatApplication.java",
+    "line": 35,
+    "fields": [
+      {
+        "name": "NONE",
+        "type": "Pending",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new Pending()"
+      },
+      {
+        "name": "CONNECT",
+        "type": "Pending",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new Pending()"
+      },
+      {
+        "name": "LOGIN",
+        "type": "Pending",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new Pending()"
+      },
+      {
+        "name": "JOIN",
+        "type": "Pending",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new Pending()"
+      },
+      {
+        "name": "TEXT",
+        "type": "Pending",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new Pending()"
+      },
+      {
+        "name": "PRIVATE",
+        "type": "Pending",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new Pending()"
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "ListenerCallback",
+    "qualifiedName": "ChatApplication.ListenerCallback",
+    "package": "chat.client.gui",
+    "enclosing": "ChatApplication",
+    "anonymous": true,
+    "kind": "CLASS",
+    "flags": [],
+    "extends": null,
+    "implements": [
+      "ConnectionListener"
+    ],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/gui/ChatApplication.java",
+    "line": 235,
+    "fields": [],
+    "methods": [
+      {
+        "name": "onConnected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "onMessage",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onError",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "onDisconnected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "reason",
+            "type": "String"
+          },
+          {
+            "name": "unexpected",
+            "type": "boolean"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "MessageCell",
+    "qualifiedName": "MessageCell",
+    "package": "chat.client.gui",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "final"
+    ],
+    "extends": "ListCell<ServerMessage>",
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/client/gui/MessageCell.java",
+    "line": 13,
+    "fields": [
+      {
+        "name": "TIME",
+        "type": "DateTimeFormatter",
+        "flags": [
+          "private",
+          "static",
+          "final"
+        ],
+        "initializer": "DateTimeFormatter.ofPattern(\"HH:mm:ss\")"
+      },
+      {
+        "name": "metadata",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Label()"
+      },
+      {
+        "name": "body",
+        "type": "Label",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Label()"
+      },
+      {
+        "name": "card",
+        "type": "VBox",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new VBox(5, metadata, body)"
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [],
+        "parameters": [
+          {
+            "name": "list",
+            "type": "ListView<ServerMessage>"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "updateItem",
+        "return": "void",
+        "flags": [
+          "protected"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          },
+          {
+            "name": "empty",
+            "type": "boolean"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ChatProtocol",
+    "qualifiedName": "ChatProtocol",
+    "package": "chat.protocol",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/protocol/ChatProtocol.java",
+    "line": 5,
+    "fields": [
+      {
+        "name": "DEFAULT_HOST",
+        "type": "String",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "\"localhost\""
+      },
+      {
+        "name": "DEFAULT_PORT",
+        "type": "int",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "5555"
+      },
+      {
+        "name": "ROOMS",
+        "type": "List<String>",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "List.of(\"lobby\", \"java\", \"hygge\")"
+      },
+      {
+        "name": "START_ROOM",
+        "type": "String",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "\"lobby\""
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ClientMessage",
+    "qualifiedName": "ClientMessage",
+    "package": "chat.protocol",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "RECORD",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/protocol/ClientMessage.java",
+    "line": 4,
+    "fields": [
+      {
+        "name": "type",
+        "type": "MessageType",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "target",
+        "type": "String",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "payload",
+        "type": "String",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "MessageParser",
+    "qualifiedName": "MessageParser",
+    "package": "chat.protocol",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/protocol/MessageParser.java",
+    "line": 10,
+    "fields": [
+      {
+        "name": "TIMESTAMP_FORMAT",
+        "type": "DateTimeFormatter",
+        "flags": [
+          "private",
+          "static",
+          "final"
+        ],
+        "initializer": "DateTimeFormatter.ofPattern(\"uuuu-MM-dd HH:mm:ss\", Locale.ROOT).withResolverStyle(ResolverStyle.STRICT)"
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "parseClient",
+        "return": "ClientMessage",
+        "flags": [
+          "public",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "line",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "parseServer",
+        "return": "ServerMessage",
+        "flags": [
+          "public",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "line",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "format",
+        "return": "String",
+        "flags": [
+          "public",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ClientMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "format",
+        "return": "String",
+        "flags": [
+          "public",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "validateClient",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ClientMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "validateServer",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "parseType",
+        "return": "MessageType",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "value",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "parseTimestamp",
+        "return": "LocalDateTime",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "value",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "requireField",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "value",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "requireSingleLine",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "value",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "requireText",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "value",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "requireEmpty",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "value",
+            "type": "String"
+          },
+          {
+            "name": "name",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "requireServerSender",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "sender",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "MessageType",
+    "qualifiedName": "MessageType",
+    "package": "chat.protocol",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "ENUM",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/protocol/MessageType.java",
+    "line": 4,
+    "fields": [
+      {
+        "name": "LOGIN",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "JOIN_ROOM",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "TEXT",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "PRIVATE",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "QUIT",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "LOGIN_OK",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "ROOM_JOINED",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "INFO",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "ERROR",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      },
+      {
+        "name": "BYE",
+        "type": "MessageType",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MessageType()"
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "ProtocolException",
+    "qualifiedName": "ProtocolException",
+    "package": "chat.protocol",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public"
+    ],
+    "extends": "IllegalArgumentException",
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/protocol/ProtocolException.java",
+    "line": 4,
+    "fields": [],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "String"
+          },
+          {
+            "name": "cause",
+            "type": "Throwable"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ServerMessage",
+    "qualifiedName": "ServerMessage",
+    "package": "chat.protocol",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "RECORD",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/protocol/ServerMessage.java",
+    "line": 6,
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "LocalDateTime",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "type",
+        "type": "MessageType",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "sender",
+        "type": "String",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "target",
+        "type": "String",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "payload",
+        "type": "String",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "ChatServer",
+    "qualifiedName": "ChatServer",
+    "package": "chat.server",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [
+      "AutoCloseable"
+    ],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ChatServer.java",
+    "line": 25,
+    "fields": [
+      {
+        "name": "DEFAULT_MAX_CLIENTS",
+        "type": "int",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "10"
+      },
+      {
+        "name": "serverSocket",
+        "type": "ServerSocket",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "handlers",
+        "type": "ExecutorService",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "service",
+        "type": "ChatService",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new ChatService()"
+      },
+      {
+        "name": "lifecycleLock",
+        "type": "Object",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Object()"
+      },
+      {
+        "name": "connections",
+        "type": "Set<ClientHandler>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new HashSet<>()"
+      },
+      {
+        "name": "acceptedSockets",
+        "type": "Set<Socket>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new HashSet<>()"
+      },
+      {
+        "name": "maxClients",
+        "type": "int",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "started",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "closed",
+        "type": "boolean",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "port",
+            "type": "int"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "port",
+            "type": "int"
+          },
+          {
+            "name": "maxClients",
+            "type": "int"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "bindHost",
+            "type": "String"
+          },
+          {
+            "name": "port",
+            "type": "int"
+          },
+          {
+            "name": "maxClients",
+            "type": "int"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "port",
+        "return": "int",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "start",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "acceptConnections",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "accept",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "socket",
+            "type": "Socket"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "reject",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "socket",
+            "type": "Socket"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "release",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "handler",
+            "type": "ClientHandler"
+          },
+          {
+            "name": "socket",
+            "type": "Socket"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "isClosed",
+        "return": "boolean",
+        "flags": [
+          "private"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "close",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "closeSocket",
+        "return": "void",
+        "flags": [
+          "private",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "socket",
+            "type": "Socket"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "main",
+        "return": "void",
+        "flags": [
+          "public",
+          "static"
+        ],
+        "parameters": [
+          {
+            "name": "args",
+            "type": "String[]"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ChatService",
+    "qualifiedName": "ChatService",
+    "package": "chat.server",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ChatService.java",
+    "line": 15,
+    "fields": [
+      {
+        "name": "state",
+        "type": "ChatState",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "state",
+            "type": "ChatState"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "connected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "disconnected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "handle",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "command",
+            "type": "ClientMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "error",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "text",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "login",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "requestedName",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "join",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "room",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "broadcast",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "session",
+            "type": "ChatState.Session"
+          },
+          {
+            "name": "command",
+            "type": "ClientMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "privateMessage",
+        "return": "void",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "session",
+            "type": "ChatState.Session"
+          },
+          {
+            "name": "command",
+            "type": "ClientMessage"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "username",
+        "return": "String",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "response",
+        "return": "ServerMessage",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "type": "MessageType"
+          },
+          {
+            "name": "target",
+            "type": "String"
+          },
+          {
+            "name": "payload",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "deliver",
+        "return": "boolean",
+        "flags": [
+          "private"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ChatState",
+    "qualifiedName": "ChatState",
+    "package": "chat.server",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ChatState.java",
+    "line": 14,
+    "fields": [
+      {
+        "name": "lock",
+        "type": "Object",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Object()"
+      },
+      {
+        "name": "connections",
+        "type": "Map<ClientPeer, Membership>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new IdentityHashMap<>()"
+      },
+      {
+        "name": "users",
+        "type": "Map<String, ClientPeer>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new HashMap<>()"
+      },
+      {
+        "name": "rooms",
+        "type": "Map<String, Set<ClientPeer>>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new HashMap<>()"
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "connected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "register",
+        "return": "LoginResult",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "username",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "session",
+        "return": "Optional<Session>",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "move",
+        "return": "MoveResult",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "room",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "recipients",
+        "return": "Optional<List<ClientPeer>>",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "sender",
+            "type": "ClientPeer"
+          },
+          {
+            "name": "room",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "user",
+        "return": "Optional<ClientPeer>",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "username",
+            "type": "String"
+          }
+        ],
+        "throws": []
+      },
+      {
+        "name": "sessions",
+        "return": "List<Session>",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "disconnected",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "peer",
+            "type": "ClientPeer"
+          }
+        ],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "LoginResult",
+    "qualifiedName": "ChatState.LoginResult",
+    "package": "chat.server",
+    "enclosing": "ChatState",
+    "anonymous": false,
+    "kind": "ENUM",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ChatState.java",
+    "line": 15,
+    "fields": [
+      {
+        "name": "SUCCESS",
+        "type": "LoginResult",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new LoginResult()"
+      },
+      {
+        "name": "NAME_TAKEN",
+        "type": "LoginResult",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new LoginResult()"
+      },
+      {
+        "name": "ALREADY_LOGGED_IN",
+        "type": "LoginResult",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new LoginResult()"
+      },
+      {
+        "name": "DISCONNECTED",
+        "type": "LoginResult",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new LoginResult()"
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "MoveResult",
+    "qualifiedName": "ChatState.MoveResult",
+    "package": "chat.server",
+    "enclosing": "ChatState",
+    "anonymous": false,
+    "kind": "ENUM",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ChatState.java",
+    "line": 17,
+    "fields": [
+      {
+        "name": "SUCCESS",
+        "type": "MoveResult",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MoveResult()"
+      },
+      {
+        "name": "UNKNOWN_ROOM",
+        "type": "MoveResult",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MoveResult()"
+      },
+      {
+        "name": "NOT_LOGGED_IN",
+        "type": "MoveResult",
+        "flags": [
+          "public",
+          "static",
+          "final"
+        ],
+        "initializer": "new MoveResult()"
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "Session",
+    "qualifiedName": "ChatState.Session",
+    "package": "chat.server",
+    "enclosing": "ChatState",
+    "anonymous": false,
+    "kind": "RECORD",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ChatState.java",
+    "line": 19,
+    "fields": [
+      {
+        "name": "username",
+        "type": "String",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "room",
+        "type": "String",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "peer",
+        "type": "ClientPeer",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "Membership",
+    "qualifiedName": "ChatState.Membership",
+    "package": "chat.server",
+    "enclosing": "ChatState",
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "private",
+      "static",
+      "final"
+    ],
+    "extends": null,
+    "implements": [],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ChatState.java",
+    "line": 21,
+    "fields": [
+      {
+        "name": "username",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "room",
+        "type": "String",
+        "flags": [
+          "private"
+        ],
+        "initializer": null
+      }
+    ],
+    "methods": []
+  },
+  {
+    "name": "ClientHandler",
+    "qualifiedName": "ClientHandler",
+    "package": "chat.server",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "CLASS",
+    "flags": [
+      "public",
+      "final"
+    ],
+    "extends": null,
+    "implements": [
+      "Runnable",
+      "ClientPeer"
+    ],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ClientHandler.java",
+    "line": 18,
+    "fields": [
+      {
+        "name": "socket",
+        "type": "Socket",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "service",
+        "type": "ChatService",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "input",
+        "type": "BufferedReader",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "output",
+        "type": "BufferedWriter",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "onClosed",
+        "type": "Consumer<ClientHandler>",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": null
+      },
+      {
+        "name": "sendLock",
+        "type": "Object",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new Object()"
+      },
+      {
+        "name": "closed",
+        "type": "AtomicBoolean",
+        "flags": [
+          "private",
+          "final"
+        ],
+        "initializer": "new AtomicBoolean()"
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "return": null,
+        "flags": [],
+        "parameters": [
+          {
+            "name": "socket",
+            "type": "Socket"
+          },
+          {
+            "name": "service",
+            "type": "ChatService"
+          },
+          {
+            "name": "onClosed",
+            "type": "Consumer<ClientHandler>"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "run",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      },
+      {
+        "name": "send",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "close",
+        "return": "void",
+        "flags": [
+          "public"
+        ],
+        "parameters": [],
+        "throws": []
+      }
+    ]
+  },
+  {
+    "name": "ClientPeer",
+    "qualifiedName": "ClientPeer",
+    "package": "chat.server",
+    "enclosing": null,
+    "anonymous": false,
+    "kind": "INTERFACE",
+    "flags": [
+      "public"
+    ],
+    "extends": null,
+    "implements": [
+      "AutoCloseable"
+    ],
+    "file": "/Users/jonas/Desktop/MinProject-Sockets/src/main/java/chat/server/ClientPeer.java",
+    "line": 8,
+    "fields": [],
+    "methods": [
+      {
+        "name": "send",
+        "return": "void",
+        "flags": [],
+        "parameters": [
+          {
+            "name": "message",
+            "type": "ServerMessage"
+          }
+        ],
+        "throws": [
+          "IOException"
+        ]
+      },
+      {
+        "name": "close",
+        "return": "void",
+        "flags": [],
+        "parameters": [],
+        "throws": []
+      }
+    ]
+  }
+]

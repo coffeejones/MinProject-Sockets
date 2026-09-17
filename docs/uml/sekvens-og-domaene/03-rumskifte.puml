@@ -1,0 +1,68 @@
+@startuml
+skinparam monochrome true
+skinparam style strictuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam titleFontSize 20
+skinparam ArrowFontSize 14
+skinparam maxMessageSize 210
+skinparam sequence {
+  ParticipantBackgroundColor white
+  ParticipantBorderColor black
+  ParticipantFontColor black
+  LifeLineBorderColor black
+  LifeLineBackgroundColor white
+  ActivationBorderColor black
+  ActivationBackgroundColor white
+  ArrowColor black
+  GroupBackgroundColor white
+  GroupBodyBackgroundColor white
+  GroupBorderColor black
+  DividerBackgroundColor white
+  DividerBorderColor black
+  ReferenceBackgroundColor white
+  ReferenceBorderColor black
+}
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+hide footbox
+title Skift chatrum
+participant "Klient\n«delsystem»" as C
+participant "handler:ClientHandler" as H
+participant "service:ChatService" as S
+participant "state:ChatState" as D
+activate C
+C ->> H : JOIN_ROOM|rum|
+deactivate C
+activate H
+H -> S : handle(peer, command)
+activate S
+S -> D : move(peer, rum)
+activate D
+D -->> S : MoveResult
+deactivate D
+alt SUCCESS
+  S -> H : send(ROOM_JOINED)
+  activate H
+  H ->> C : ROOM_JOINED: rum
+  deactivate H
+  activate C
+  C -> C : Bekræftet rum = rum;\nfrigiv næste kommando
+  deactivate C
+else UNKNOWN_ROOM
+  S -> H : send(ERROR)
+  activate H
+  H ->> C : ERROR: rummet findes ikke
+  deactivate H
+  activate C
+  C -> C : Bevar tidligere rum; vis fejl
+  deactivate C
+end
+deactivate S
+deactivate H
+note over S, D : Forudsætning: logget ind. rum er brugerens valg (fx java).\nmove() flytter\nmedlemskabet samlet under låsen.
+caption Klient = brugerflade + ChatConnection + ServerListener. Udvalgte kald; TCP-svar er forkortet.
+@enduml

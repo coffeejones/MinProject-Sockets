@@ -1,0 +1,187 @@
+@startuml
+!pragma layout smetana
+set namespaceSeparator none
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam classFontSize 14
+skinparam classAttributeFontSize 12
+skinparam packageFontSize 16
+skinparam ArrowFontSize 12
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classFontColor black
+skinparam classHeaderBackgroundColor white
+skinparam packageBackgroundColor white
+skinparam packageBorderColor black
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam nodesep 70
+skinparam ranksep 95
+hide circle
+hide empty members
+
+title Chatprogram — server
+package "chat.server" {
+class "+ ChatServer\n{leaf}" as ChatServer {
+  {static} + DEFAULT_MAX_CLIENTS: int {readOnly}
+  - serverSocket: ServerSocket {readOnly}
+  - handlers: ExecutorService {readOnly}
+  - service: ChatService {readOnly}
+  - lifecycleLock: Object {readOnly}
+  - connections: Set<ClientHandler> {readOnly}
+  - acceptedSockets: Set<Socket> {readOnly}
+  - maxClients: int {readOnly}
+  - started: boolean
+  - closed: boolean
+  --
+  + ChatServer(port: int) {throws IOException}
+  + ChatServer(port: int, maxClients: int) {throws IOException}
+  + ChatServer(bindHost: String, port: int, maxClients: int) {throws IOException}
+  + port(): int
+  + start(): void
+  - acceptConnections(): void
+  - accept(socket: Socket): void
+  - reject(socket: Socket): void {throws IOException}
+  - release(handler: ClientHandler, socket: Socket): void
+  - isClosed(): boolean
+  + close(): void
+  {static} - closeSocket(socket: Socket): void
+  {static} + main(args: String[]): void
+}
+class "+ ChatService\n{leaf}" as ChatService {
+  - state: ChatState {readOnly}
+  --
+  + ChatService()
+  + ChatService(state: ChatState)
+  + connected(peer: ClientPeer): void
+  + disconnected(peer: ClientPeer): void
+  + handle(peer: ClientPeer, command: ClientMessage): void
+  + error(peer: ClientPeer, text: String): void
+  - login(peer: ClientPeer, requestedName: String): void
+  - join(peer: ClientPeer, room: String): void
+  - broadcast(peer: ClientPeer, session: ChatState.Session, command: ClientMessage): void
+  - privateMessage(peer: ClientPeer, session: ChatState.Session, command: ClientMessage): void
+  - username(peer: ClientPeer): String
+  - response(type: MessageType, target: String, payload: String): ServerMessage
+  - deliver(peer: ClientPeer, message: ServerMessage): boolean
+}
+class "+ ChatState\n{leaf}" as ChatState {
+  - lock: Object {readOnly}
+  - connections: Map<ClientPeer, Membership> {readOnly}
+  - users: Map<String, ClientPeer> {readOnly}
+  - rooms: Map<String, Set<ClientPeer>> {readOnly}
+  --
+  + ChatState()
+  + connected(peer: ClientPeer): void
+  + register(peer: ClientPeer, username: String): LoginResult
+  + session(peer: ClientPeer): Optional<Session>
+  + move(peer: ClientPeer, room: String): MoveResult
+  + recipients(sender: ClientPeer, room: String): Optional<List<ClientPeer>>
+  + user(username: String): Optional<ClientPeer>
+  + sessions(): List<Session>
+  + disconnected(peer: ClientPeer): void
+}
+class "+ ChatState::LoginResult\n{leaf}" as ChatState_LoginResult <<enumeration>> {
+  SUCCESS
+  NAME_TAKEN
+  ALREADY_LOGGED_IN
+  DISCONNECTED
+  --
+  .. genereret af Java ..
+  {static} + values(): LoginResult[]
+  {static} + valueOf(name: String): LoginResult
+}
+class "+ ChatState::MoveResult\n{leaf}" as ChatState_MoveResult <<enumeration>> {
+  SUCCESS
+  UNKNOWN_ROOM
+  NOT_LOGGED_IN
+  --
+  .. genereret af Java ..
+  {static} + values(): MoveResult[]
+  {static} + valueOf(name: String): MoveResult
+}
+class "+ ChatState::Session\n{leaf}" as ChatState_Session <<record>> {
+  - username: String {readOnly}
+  - room: String {readOnly}
+  - peer: ClientPeer {readOnly}
+  --
+  .. genereret af Java ..
+  + Session(username: String, room: String, peer: ClientPeer)
+  + username(): String
+  + room(): String
+  + peer(): ClientPeer
+  + equals(other: Object): boolean
+  + hashCode(): int
+  + toString(): String
+}
+class "- ChatState::Membership\n{leaf}" as ChatState_Membership {
+  - username: String
+  - room: String
+  --
+  .. genereret af Java ..
+  - Membership()
+}
+class "+ ClientHandler\n{leaf}" as ClientHandler {
+  - socket: Socket {readOnly}
+  - service: ChatService {readOnly}
+  - input: BufferedReader {readOnly}
+  - output: BufferedWriter {readOnly}
+  - onClosed: Consumer<ClientHandler> {readOnly}
+  - sendLock: Object {readOnly}
+  - closed: AtomicBoolean {readOnly}
+  --
+  ~ ClientHandler(socket: Socket, service: ChatService, onClosed: Consumer<ClientHandler>) {throws IOException}
+  + run(): void
+  + send(message: ServerMessage): void {throws IOException}
+  + close(): void
+}
+class "+ ClientPeer" as ClientPeer <<interface>> {
+  --
+  {abstract} + send(message: ServerMessage): void {throws IOException}
+  {abstract} + close(): void
+}
+}
+package "chat.protocol" {
+class "+ ChatProtocol\n{leaf}" as ChatProtocol {
+}
+class "+ MessageParser\n{leaf}" as MessageParser {
+}
+}
+package "java.lang" {
+interface "AutoCloseable" as AutoCloseable <<external>>
+interface "Runnable" as Runnable <<external>>
+}
+ChatServer ..|> AutoCloseable
+ClientPeer --|> AutoCloseable
+ClientHandler ..|> Runnable
+ClientHandler ..|> ClientPeer
+ChatServer "0..1" --> "1" ChatService : service
+ChatServer "0..1" --> "0..*" ClientHandler : connections\n{size <= maxClients}
+ClientHandler "0..*" --> "1" ChatService : service
+ChatService "0..*" --> "1" ChatState : state
+ChatState "0..1" *--> "0..*" ChatState_Membership : connections: values
+ChatState "0..*" --> "0..*" ClientPeer : connections: keys\nusers: values / rooms: members
+ChatState_Session "0..*" --> "0..1" ClientPeer : peer {readOnly}
+ChatState ..> ChatState_Session : «create»
+ChatState ..> ChatState_LoginResult : returnerer
+ChatState ..> ChatState_MoveResult : returnerer
+ClientHandler ..> MessageParser : parser / formaterer
+ChatState ..> ChatProtocol : rumkonstanter
+legend bottom left
++ public    - private    # protected    ~ package
+Understreget = static; kursiv = abstract; {readOnly} = final felt; {leaf} = ingen underklasser
+«record», «anonymous», «external» og {default}/{volatile} er Java-markeringer.
+A::B er en indre type B i A. Multipliciteter ved pile angiver antal referencer.
+Fuld linje: association. Sort diamant: komposition. Stiplet pil: afhængighed.
+Hul trekant: arv (fuld linje) / interface-realisering (stiplet linje).
+Fokuspakker med felter og operationer; tomme egne typer er med som kontekst.
+Eksterne typer vises kun som direkte supertyper.
+Multipliciteter gælder velformet kørsel; record-komponenter kan være null.
+Øvrig brug af typer fremgår af signaturer og README; ikke alle metodekald har en pil.
+endlegend
+@enduml

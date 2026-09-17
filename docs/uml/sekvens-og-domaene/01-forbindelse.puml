@@ -1,0 +1,69 @@
+@startuml
+skinparam monochrome true
+skinparam style strictuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam titleFontSize 20
+skinparam ArrowFontSize 14
+skinparam maxMessageSize 210
+skinparam sequence {
+  ParticipantBackgroundColor white
+  ParticipantBorderColor black
+  ParticipantFontColor black
+  LifeLineBorderColor black
+  LifeLineBackgroundColor white
+  ActivationBorderColor black
+  ActivationBackgroundColor white
+  ArrowColor black
+  GroupBackgroundColor white
+  GroupBodyBackgroundColor white
+  GroupBorderColor black
+  DividerBackgroundColor white
+  DividerBorderColor black
+  ReferenceBackgroundColor white
+  ReferenceBorderColor black
+}
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+hide footbox
+title Opret forbindelse til serveren
+participant "Klient\n«delsystem»" as C
+participant "server:ChatServer" as A
+participant "handler:ClientHandler" as H
+participant "service:ChatService" as S
+participant "state:ChatState" as D
+ref over C, A : TCP-opkobling på transportlaget
+par Klientens opstart
+  C -> C : Opret streams; onConnected()\nog start lyttertråd
+  activate C
+  deactivate C
+else Serverens opstart (ledig kapacitet)
+  note over A : ServerSocket.accept()\nreturnerer en socket.
+  activate A
+  create H
+  A -> H : new ClientHandler(...)
+  activate H
+  H -> S : connected(this)
+  activate S
+  S -> D : connected(peer)
+  activate D
+  D -->> S : registreret uden brugernavn
+  deactivate D
+  S -->> H : færdig
+  deactivate S
+  H -->> A : ny handler
+  deactivate H
+  A ->> H : start run() via trådpuljen
+  activate H
+  deactivate A
+end
+note over C, A
+  Opstart på klient og server kan overlappe.
+  onConnected() er ikke en loginbekræftelse.
+end note
+note right of H : Læseløkken fortsætter\nefter dette udsnit.
+caption Klient = brugerflade + ChatConnection + ServerListener. Udvalgte kald; TCP-svar er forkortet.
+@enduml

@@ -1,0 +1,470 @@
+@startuml
+!pragma layout smetana
+set namespaceSeparator none
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam classFontSize 14
+skinparam classAttributeFontSize 12
+skinparam packageFontSize 16
+skinparam ArrowFontSize 12
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classFontColor black
+skinparam classHeaderBackgroundColor white
+skinparam packageBackgroundColor white
+skinparam packageBorderColor black
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam nodesep 70
+skinparam ranksep 95
+hide circle
+hide empty members
+
+title Chatprogram — UML-klassediagram
+package "chat.client.console" {
+class "+ ChatClient\n{leaf}" as ChatClient {
+  {static} - TIME: DateTimeFormatter {readOnly}
+  - stateLock: Object {readOnly}
+  - connection: ChatConnection {readOnly}
+  - username: String
+  - room: String
+  - awaitingReply: MessageType
+  --
+  {static} + main(args: String[]): void
+  - run(host: String, port: int): void
+  - readConsole(): void
+  - handleInput(line: String): void
+  - send(message: ClientMessage, expectedReply: MessageType): void
+  + onConnected(): void
+  + onMessage(message: ServerMessage): void
+  + onError(message: String): void
+  + onDisconnected(reason: String, unexpected: boolean): void
+  - releaseInput(): void
+  {static} - printHelp(): void
+  .. genereret af Java ..
+  + ChatClient()
+}
+}
+package "chat.client.gui" {
+class "+ ChatApplication\n{leaf}" as ChatApplication {
+  - root: BorderPane {readOnly}
+  - messages: ObservableList<ServerMessage> {readOnly}
+  - hostField: TextField {readOnly}
+  - portField: TextField {readOnly}
+  - usernameField: TextField {readOnly}
+  - publicField: TextField {readOnly}
+  - recipientField: TextField {readOnly}
+  - privateField: TextField {readOnly}
+  - connectButton: Button {readOnly}
+  - cancelLoginButton: Button {readOnly}
+  - publicButton: Button {readOnly}
+  - privateButton: Button {readOnly}
+  - disconnectButton: Button {readOnly}
+  - reconnectButton: Button {readOnly}
+  - roomSelector: ComboBox<String> {readOnly}
+  - messageList: ListView<ServerMessage> {readOnly}
+  - loginFeedback: Label {readOnly}
+  - chatFeedback: Label {readOnly}
+  - userLabel: Label {readOnly}
+  - statusLabel: Label {readOnly}
+  - roomDescription: Label {readOnly}
+  - publicLabel: Label {readOnly}
+  - stage: Stage
+  - loginView: Node
+  - chatView: Node
+  - connection: ChatConnection
+  - pending: Pending
+  - username: String
+  - currentRoom: String
+  - sentText: String
+  - lastNetworkError: String
+  - connected: boolean
+  - loggedIn: boolean
+  - closing: boolean
+  - chatVisible: boolean
+  - updatingRoom: boolean
+  - stopping: boolean
+  - generation: long
+  --
+  + start(stage: Stage): void
+  - buildLogin(): Node
+  - buildChat(): Node
+  - submitLogin(): void
+  - listener(token: long, requestedName: String): ConnectionListener
+  - receive(message: ServerMessage): void
+  - changeRoom(): void
+  - sendPublic(): void
+  - sendPrivate(): void
+  - sendCommand(message: ClientMessage, operation: Pending): void
+  - clearIfUnchanged(field: TextField): void
+  - canSend(): boolean
+  - disconnect(): void
+  - showLogin(): void
+  - showChat(): void
+  - restoreRoomSelection(): void
+  - refreshControls(): void
+  - showFeedback(text: String, error: boolean): void
+  - onFx(token: long, update: Runnable): void
+  - closeConnection(): void
+  + stop(): void
+  {static} - field(id: String, accessibleText: String, prompt: String): TextField
+  {static} - button(id: String, text: String, styleClass: String): Button
+  {static} - labeled(text: String, field: Node): VBox
+  {static} - feedback(id: String): Label
+  {static} - visible(node: Node, visible: boolean): void
+  {static} + main(args: String[]): void
+  .. genereret af Java ..
+  + ChatApplication()
+}
+class "- ChatApplication::Pending\n{leaf}" as ChatApplication_Pending <<enumeration>> {
+  NONE
+  CONNECT
+  LOGIN
+  JOIN
+  TEXT
+  PRIVATE
+  --
+  .. genereret af Java ..
+  {static} + values(): Pending[]
+  {static} + valueOf(name: String): Pending
+}
+class "listener callback" as ChatApplication_ListenerCallback <<anonymous>> {
+  --
+  + onConnected(): void
+  + onMessage(message: ServerMessage): void
+  + onError(message: String): void
+  + onDisconnected(reason: String, unexpected: boolean): void
+}
+class "~ MessageCell\n{leaf}" as MessageCell {
+  {static} - TIME: DateTimeFormatter {readOnly}
+  - metadata: Label {readOnly}
+  - body: Label {readOnly}
+  - card: VBox {readOnly}
+  --
+  ~ MessageCell(list: ListView<ServerMessage>)
+  # updateItem(message: ServerMessage, empty: boolean): void
+}
+}
+package "chat.client" {
+class "+ ChatConnection\n{leaf}" as ChatConnection {
+  {static} - CONNECT_TIMEOUT_MILLIS: int {readOnly}
+  {static} - QUIT_TIMEOUT_SECONDS: int {readOnly}
+  - listener: ConnectionListener {readOnly}
+  - outgoing: ExecutorService {readOnly}
+  - socket: AtomicReference<Socket> {readOnly}
+  - started: AtomicBoolean {readOnly}
+  - closed: AtomicBoolean {readOnly}
+  - quitting: AtomicBoolean {readOnly}
+  - pending: Set<CompletableFuture<Void>> {readOnly}
+  - completion: CompletableFuture<Void> {readOnly}
+  - output: BufferedWriter {volatile}
+  --
+  + ChatConnection(listener: ConnectionListener)
+  + connect(host: String, port: int): CompletableFuture<Void>
+  + send(message: ClientMessage): CompletableFuture<Void>
+  + quit(): void
+  + close(): void
+  + isClosed(): boolean
+  + completion(): CompletableFuture<Void>
+  - write(line: String): void {throws IOException}
+  - enqueue(operation: IoOperation): CompletableFuture<Void>
+  - invalid(message: String): CompletableFuture<Void>
+  - receive(message: ServerMessage): void
+  - readFailed(exception: Exception): void
+  - readEnded(): void
+  - finish(reason: String, unexpected: boolean): void
+  - notifyListener(notification: Runnable): void
+  {static} - detail(exception: Exception): String
+}
+class "- ChatConnection::IoOperation" as ChatConnection_IoOperation <<interface>> {
+  --
+  {abstract} + run(): void {throws IOException}
+}
+class "+ ConnectionListener" as ConnectionListener <<interface>> {
+  --
+  + onConnected(): void {default}
+  + onMessage(message: ServerMessage): void {default}
+  + onError(message: String): void {default}
+  + onDisconnected(reason: String, unexpected: boolean): void {default}
+}
+class "+ ServerListener\n{leaf}" as ServerListener {
+  - input: BufferedReader {readOnly}
+  - messages: Consumer<ServerMessage> {readOnly}
+  - failures: Consumer<Exception> {readOnly}
+  - finished: Runnable {readOnly}
+  --
+  ~ ServerListener(input: BufferedReader, messages: Consumer<ServerMessage>, failures: Consumer<Exception>, finished: Runnable)
+  + run(): void
+}
+}
+package "chat.server" {
+class "+ ChatServer\n{leaf}" as ChatServer {
+  {static} + DEFAULT_MAX_CLIENTS: int {readOnly}
+  - serverSocket: ServerSocket {readOnly}
+  - handlers: ExecutorService {readOnly}
+  - service: ChatService {readOnly}
+  - lifecycleLock: Object {readOnly}
+  - connections: Set<ClientHandler> {readOnly}
+  - acceptedSockets: Set<Socket> {readOnly}
+  - maxClients: int {readOnly}
+  - started: boolean
+  - closed: boolean
+  --
+  + ChatServer(port: int) {throws IOException}
+  + ChatServer(port: int, maxClients: int) {throws IOException}
+  + ChatServer(bindHost: String, port: int, maxClients: int) {throws IOException}
+  + port(): int
+  + start(): void
+  - acceptConnections(): void
+  - accept(socket: Socket): void
+  - reject(socket: Socket): void {throws IOException}
+  - release(handler: ClientHandler, socket: Socket): void
+  - isClosed(): boolean
+  + close(): void
+  {static} - closeSocket(socket: Socket): void
+  {static} + main(args: String[]): void
+}
+class "+ ChatService\n{leaf}" as ChatService {
+  - state: ChatState {readOnly}
+  --
+  + ChatService()
+  + ChatService(state: ChatState)
+  + connected(peer: ClientPeer): void
+  + disconnected(peer: ClientPeer): void
+  + handle(peer: ClientPeer, command: ClientMessage): void
+  + error(peer: ClientPeer, text: String): void
+  - login(peer: ClientPeer, requestedName: String): void
+  - join(peer: ClientPeer, room: String): void
+  - broadcast(peer: ClientPeer, session: ChatState.Session, command: ClientMessage): void
+  - privateMessage(peer: ClientPeer, session: ChatState.Session, command: ClientMessage): void
+  - username(peer: ClientPeer): String
+  - response(type: MessageType, target: String, payload: String): ServerMessage
+  - deliver(peer: ClientPeer, message: ServerMessage): boolean
+}
+class "+ ChatState\n{leaf}" as ChatState {
+  - lock: Object {readOnly}
+  - connections: Map<ClientPeer, Membership> {readOnly}
+  - users: Map<String, ClientPeer> {readOnly}
+  - rooms: Map<String, Set<ClientPeer>> {readOnly}
+  --
+  + ChatState()
+  + connected(peer: ClientPeer): void
+  + register(peer: ClientPeer, username: String): LoginResult
+  + session(peer: ClientPeer): Optional<Session>
+  + move(peer: ClientPeer, room: String): MoveResult
+  + recipients(sender: ClientPeer, room: String): Optional<List<ClientPeer>>
+  + user(username: String): Optional<ClientPeer>
+  + sessions(): List<Session>
+  + disconnected(peer: ClientPeer): void
+}
+class "+ ChatState::LoginResult\n{leaf}" as ChatState_LoginResult <<enumeration>> {
+  SUCCESS
+  NAME_TAKEN
+  ALREADY_LOGGED_IN
+  DISCONNECTED
+  --
+  .. genereret af Java ..
+  {static} + values(): LoginResult[]
+  {static} + valueOf(name: String): LoginResult
+}
+class "+ ChatState::MoveResult\n{leaf}" as ChatState_MoveResult <<enumeration>> {
+  SUCCESS
+  UNKNOWN_ROOM
+  NOT_LOGGED_IN
+  --
+  .. genereret af Java ..
+  {static} + values(): MoveResult[]
+  {static} + valueOf(name: String): MoveResult
+}
+class "+ ChatState::Session\n{leaf}" as ChatState_Session <<record>> {
+  - username: String {readOnly}
+  - room: String {readOnly}
+  - peer: ClientPeer {readOnly}
+  --
+  .. genereret af Java ..
+  + Session(username: String, room: String, peer: ClientPeer)
+  + username(): String
+  + room(): String
+  + peer(): ClientPeer
+  + equals(other: Object): boolean
+  + hashCode(): int
+  + toString(): String
+}
+class "- ChatState::Membership\n{leaf}" as ChatState_Membership {
+  - username: String
+  - room: String
+  --
+  .. genereret af Java ..
+  - Membership()
+}
+class "+ ClientHandler\n{leaf}" as ClientHandler {
+  - socket: Socket {readOnly}
+  - service: ChatService {readOnly}
+  - input: BufferedReader {readOnly}
+  - output: BufferedWriter {readOnly}
+  - onClosed: Consumer<ClientHandler> {readOnly}
+  - sendLock: Object {readOnly}
+  - closed: AtomicBoolean {readOnly}
+  --
+  ~ ClientHandler(socket: Socket, service: ChatService, onClosed: Consumer<ClientHandler>) {throws IOException}
+  + run(): void
+  + send(message: ServerMessage): void {throws IOException}
+  + close(): void
+}
+class "+ ClientPeer" as ClientPeer <<interface>> {
+  --
+  {abstract} + send(message: ServerMessage): void {throws IOException}
+  {abstract} + close(): void
+}
+}
+package "chat.protocol" {
+class "+ ChatProtocol\n{leaf}" as ChatProtocol {
+  {static} + DEFAULT_HOST: String {readOnly}
+  {static} + DEFAULT_PORT: int {readOnly}
+  {static} + ROOMS: List<String> {readOnly}
+  {static} + START_ROOM: String {readOnly}
+  --
+  - ChatProtocol()
+}
+class "+ ClientMessage\n{leaf}" as ClientMessage <<record>> {
+  - type: MessageType {readOnly}
+  - target: String {readOnly}
+  - payload: String {readOnly}
+  --
+  .. genereret af Java ..
+  + ClientMessage(type: MessageType, target: String, payload: String)
+  + type(): MessageType
+  + target(): String
+  + payload(): String
+  + equals(other: Object): boolean
+  + hashCode(): int
+  + toString(): String
+}
+class "+ MessageParser\n{leaf}" as MessageParser {
+  {static} - TIMESTAMP_FORMAT: DateTimeFormatter {readOnly}
+  --
+  - MessageParser()
+  {static} + parseClient(line: String): ClientMessage
+  {static} + parseServer(line: String): ServerMessage
+  {static} + format(message: ClientMessage): String
+  {static} + format(message: ServerMessage): String
+  {static} - validateClient(message: ClientMessage): void
+  {static} - validateServer(message: ServerMessage): void
+  {static} - parseType(value: String): MessageType
+  {static} - parseTimestamp(value: String): LocalDateTime
+  {static} - requireField(value: String, name: String): void
+  {static} - requireSingleLine(value: String, name: String): void
+  {static} - requireText(value: String, name: String): void
+  {static} - requireEmpty(value: String, name: String): void
+  {static} - requireServerSender(sender: String): void
+}
+class "+ MessageType\n{leaf}" as MessageType <<enumeration>> {
+  LOGIN
+  JOIN_ROOM
+  TEXT
+  PRIVATE
+  QUIT
+  LOGIN_OK
+  ROOM_JOINED
+  INFO
+  ERROR
+  BYE
+  --
+  .. genereret af Java ..
+  {static} + values(): MessageType[]
+  {static} + valueOf(name: String): MessageType
+}
+class "+ ProtocolException" as ProtocolException {
+  --
+  + ProtocolException(message: String)
+  + ProtocolException(message: String, cause: Throwable)
+}
+class "+ ServerMessage\n{leaf}" as ServerMessage <<record>> {
+  - timestamp: LocalDateTime {readOnly}
+  - type: MessageType {readOnly}
+  - sender: String {readOnly}
+  - target: String {readOnly}
+  - payload: String {readOnly}
+  --
+  .. genereret af Java ..
+  + ServerMessage(timestamp: LocalDateTime, type: MessageType, sender: String, target: String, payload: String)
+  + timestamp(): LocalDateTime
+  + type(): MessageType
+  + sender(): String
+  + target(): String
+  + payload(): String
+  + equals(other: Object): boolean
+  + hashCode(): int
+  + toString(): String
+}
+}
+package "java.lang" {
+interface "AutoCloseable" as AutoCloseable <<external>>
+class "IllegalArgumentException" as IllegalArgumentException <<external>>
+interface "Runnable" as Runnable <<external>>
+}
+package "javafx.application" {
+abstract class "Application" as Application <<external>>
+}
+package "javafx.scene.control" {
+class "  ListCell⟨ServerMessage⟩  " as ListCell <<external>>
+}
+ChatServer ..|> AutoCloseable
+ChatConnection ..|> AutoCloseable
+ClientPeer --|> AutoCloseable
+ClientHandler ..|> Runnable
+ServerListener ..|> Runnable
+ClientHandler ..|> ClientPeer
+ChatClient ..|> ConnectionListener
+ChatApplication_ListenerCallback ..|> ConnectionListener
+ChatApplication --|> Application
+MessageCell --|> ListCell
+ProtocolException --|> IllegalArgumentException
+ChatServer "0..1" --> "1" ChatService : service
+ChatServer "0..1" --> "0..*" ClientHandler : connections\n{size <= maxClients}
+ClientHandler "0..*" --> "1" ChatService : service
+ChatService "0..*" --> "1" ChatState : state
+ChatState "0..1" *--> "0..*" ChatState_Membership : connections: values
+ChatState "0..*" --> "0..*" ClientPeer : connections: keys\nusers: values / rooms: members
+ChatState_Session "0..*" --> "0..1" ClientPeer : peer {readOnly}
+ChatClient "0..1" --> "1" ChatConnection : connection
+ChatApplication "0..1" --> "0..1" ChatConnection : connection
+ChatConnection "0..*" --> "1" ConnectionListener : listener {readOnly}
+ChatApplication "0..*" --> "0..*" ServerMessage : messages
+ChatClient "0..*" --> "0..1" MessageType : awaitingReply
+ChatApplication "0..*" --> "1" ChatApplication_Pending : pending
+ClientMessage "0..*" --> "0..1" MessageType : type {readOnly}
+ServerMessage "0..*" --> "0..1" MessageType : type {readOnly}
+ChatApplication_ListenerCallback "0..*" --> "1" ChatApplication : omsluttende instans\n{implicit reference}
+ChatApplication ..> ChatApplication_ListenerCallback : «create»
+ChatApplication ..> MessageCell : «create»
+ChatConnection ..> ServerListener : «create»
+ChatConnection ..> ChatConnection_IoOperation : bruger
+ChatState ..> ChatState_Session : «create»
+ChatState ..> ChatState_LoginResult : returnerer
+ChatState ..> ChatState_MoveResult : returnerer
+MessageParser ..> ClientMessage : «create» / validerer
+MessageParser ..> ServerMessage : «create» / validerer
+MessageParser ..> ProtocolException : «create»
+ChatConnection ..> MessageParser : formaterer
+ServerListener ..> MessageParser : parser
+ClientHandler ..> MessageParser : parser / formaterer
+ChatState ..> ChatProtocol : rumkonstanter
+legend bottom left
++ public    - private    # protected    ~ package
+Understreget = static; kursiv = abstract; {readOnly} = final felt; {leaf} = ingen underklasser
+«record», «anonymous», «external» og {default}/{volatile} er Java-markeringer.
+A::B er en indre type B i A. Multipliciteter ved pile angiver antal referencer.
+Fuld linje: association. Sort diamant: komposition. Stiplet pil: afhængighed.
+Hul trekant: arv (fuld linje) / interface-realisering (stiplet linje).
+Alle 24 egne typer med felter og operationer.
+Eksterne typer vises kun som direkte supertyper.
+Multipliciteter gælder velformet kørsel; record-komponenter kan være null.
+Øvrig brug af typer fremgår af signaturer og README; ikke alle metodekald har en pil.
+endlegend
+@enduml

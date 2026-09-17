@@ -1,0 +1,68 @@
+@startuml
+skinparam monochrome true
+skinparam style strictuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam titleFontSize 20
+skinparam ArrowFontSize 14
+skinparam maxMessageSize 210
+skinparam sequence {
+  ParticipantBackgroundColor white
+  ParticipantBorderColor black
+  ParticipantFontColor black
+  LifeLineBorderColor black
+  LifeLineBackgroundColor white
+  ActivationBorderColor black
+  ActivationBackgroundColor white
+  ArrowColor black
+  GroupBackgroundColor white
+  GroupBodyBackgroundColor white
+  GroupBorderColor black
+  DividerBackgroundColor white
+  DividerBorderColor black
+  ReferenceBackgroundColor white
+  ReferenceBorderColor black
+}
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+hide footbox
+title Send og modtag en rumbesked
+participant "Alices klient\n«delsystem»" as C
+participant "alice:ClientHandler" as H
+participant "service:ChatService" as S
+participant "state:ChatState" as D
+participant "bob:ClientHandler" as B
+participant "Bobs klient\n«delsystem»" as BC
+activate C
+C ->> H : TEXT|java|Hej
+deactivate C
+activate H
+H -> S : handle(peer, command)
+activate S
+S -> D : recipients(peer, "java")
+activate D
+D -->> S : kopi af rummets modtagere
+deactivate D
+note over S, D : Medlemskab kontrolleres under låsen.\nNetværksskrivning sker efter låsen er frigivet.
+S -> B : send(TEXT)
+activate B
+B ->> BC : TEXT: alice, java, "Hej"
+activate BC
+deactivate BC
+B -->> S : skrevet
+deactivate B
+S -> H : send(TEXT)
+activate H
+H ->> C : TEXT: alice, java, "Hej"
+deactivate H
+activate C
+C -> C : Vis eget ekko én gang;\nfrigiv næste kommando
+deactivate C
+deactivate S
+deactivate H
+note over C, BC : Eksempel: Alice og Bob er i java. Afsenderen modtager også beskeden.\nAlle i modtagerkopien får et sendeforsøg; rækkefølgen er ikke garanteret.
+caption Klient = brugerflade + ChatConnection + ServerListener. Udvalgte kald; TCP-svar er forkortet.
+@enduml

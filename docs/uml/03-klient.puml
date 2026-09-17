@@ -1,0 +1,108 @@
+@startuml
+!pragma layout smetana
+set namespaceSeparator none
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam classFontSize 14
+skinparam classAttributeFontSize 12
+skinparam packageFontSize 16
+skinparam ArrowFontSize 12
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classFontColor black
+skinparam classHeaderBackgroundColor white
+skinparam packageBackgroundColor white
+skinparam packageBorderColor black
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam nodesep 70
+skinparam ranksep 95
+hide circle
+hide empty members
+
+title Chatprogram — fælles klient
+package "chat.client" {
+class "+ ChatConnection\n{leaf}" as ChatConnection {
+  {static} - CONNECT_TIMEOUT_MILLIS: int {readOnly}
+  {static} - QUIT_TIMEOUT_SECONDS: int {readOnly}
+  - listener: ConnectionListener {readOnly}
+  - outgoing: ExecutorService {readOnly}
+  - socket: AtomicReference<Socket> {readOnly}
+  - started: AtomicBoolean {readOnly}
+  - closed: AtomicBoolean {readOnly}
+  - quitting: AtomicBoolean {readOnly}
+  - pending: Set<CompletableFuture<Void>> {readOnly}
+  - completion: CompletableFuture<Void> {readOnly}
+  - output: BufferedWriter {volatile}
+  --
+  + ChatConnection(listener: ConnectionListener)
+  + connect(host: String, port: int): CompletableFuture<Void>
+  + send(message: ClientMessage): CompletableFuture<Void>
+  + quit(): void
+  + close(): void
+  + isClosed(): boolean
+  + completion(): CompletableFuture<Void>
+  - write(line: String): void {throws IOException}
+  - enqueue(operation: IoOperation): CompletableFuture<Void>
+  - invalid(message: String): CompletableFuture<Void>
+  - receive(message: ServerMessage): void
+  - readFailed(exception: Exception): void
+  - readEnded(): void
+  - finish(reason: String, unexpected: boolean): void
+  - notifyListener(notification: Runnable): void
+  {static} - detail(exception: Exception): String
+}
+class "- ChatConnection::IoOperation" as ChatConnection_IoOperation <<interface>> {
+  --
+  {abstract} + run(): void {throws IOException}
+}
+class "+ ConnectionListener" as ConnectionListener <<interface>> {
+  --
+  + onConnected(): void {default}
+  + onMessage(message: ServerMessage): void {default}
+  + onError(message: String): void {default}
+  + onDisconnected(reason: String, unexpected: boolean): void {default}
+}
+class "+ ServerListener\n{leaf}" as ServerListener {
+  - input: BufferedReader {readOnly}
+  - messages: Consumer<ServerMessage> {readOnly}
+  - failures: Consumer<Exception> {readOnly}
+  - finished: Runnable {readOnly}
+  --
+  ~ ServerListener(input: BufferedReader, messages: Consumer<ServerMessage>, failures: Consumer<Exception>, finished: Runnable)
+  + run(): void
+}
+}
+package "chat.protocol" {
+class "+ MessageParser\n{leaf}" as MessageParser {
+}
+}
+package "java.lang" {
+interface "AutoCloseable" as AutoCloseable <<external>>
+interface "Runnable" as Runnable <<external>>
+}
+ChatConnection ..|> AutoCloseable
+ServerListener ..|> Runnable
+ChatConnection "0..*" --> "1" ConnectionListener : listener {readOnly}
+ChatConnection ..> ServerListener : «create»
+ChatConnection ..> ChatConnection_IoOperation : bruger
+ChatConnection ..> MessageParser : formaterer
+ServerListener ..> MessageParser : parser
+legend bottom left
++ public    - private    # protected    ~ package
+Understreget = static; kursiv = abstract; {readOnly} = final felt; {leaf} = ingen underklasser
+«record», «anonymous», «external» og {default}/{volatile} er Java-markeringer.
+A::B er en indre type B i A. Multipliciteter ved pile angiver antal referencer.
+Fuld linje: association. Sort diamant: komposition. Stiplet pil: afhængighed.
+Hul trekant: arv (fuld linje) / interface-realisering (stiplet linje).
+Fokuspakker med felter og operationer; tomme egne typer er med som kontekst.
+Eksterne typer vises kun som direkte supertyper.
+Multipliciteter gælder velformet kørsel; record-komponenter kan være null.
+Øvrig brug af typer fremgår af signaturer og README; ikke alle metodekald har en pil.
+endlegend
+@enduml

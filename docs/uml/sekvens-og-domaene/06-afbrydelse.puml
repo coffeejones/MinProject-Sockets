@@ -1,0 +1,69 @@
+@startuml
+skinparam monochrome true
+skinparam style strictuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam titleFontSize 20
+skinparam ArrowFontSize 14
+skinparam maxMessageSize 210
+skinparam sequence {
+  ParticipantBackgroundColor white
+  ParticipantBorderColor black
+  ParticipantFontColor black
+  LifeLineBorderColor black
+  LifeLineBackgroundColor white
+  ActivationBorderColor black
+  ActivationBackgroundColor white
+  ArrowColor black
+  GroupBackgroundColor white
+  GroupBodyBackgroundColor white
+  GroupBorderColor black
+  DividerBackgroundColor white
+  DividerBorderColor black
+  ReferenceBackgroundColor white
+  ReferenceBorderColor black
+}
+skinparam NoteBackgroundColor white
+skinparam NoteBorderColor black
+hide footbox
+title Afbryd forbindelsen
+participant "Klient\n«delsystem»" as C
+participant "handler:ClientHandler" as H
+participant "service:ChatService" as S
+participant "state:ChatState" as D
+activate C
+C ->> H : QUIT||
+deactivate C
+activate H
+H -> S : handle(peer, command)
+activate S
+S -> H : send(BYE)
+activate H
+H ->> C : BYE: forbindelsen afsluttes
+H -->> S : skrevet
+deactivate H
+par Serverens oprydning
+  S -> D : disconnected(peer)
+  activate D
+  D -->> S : navn og medlemskab fjernet
+  deactivate D
+  S -> H : close()
+  activate H
+  H -> H : Luk socket; frigiv\nserverens kapacitetsplads
+  H -->> S : lukket
+  deactivate H
+  S -->> H : kommando færdig
+  deactivate S
+  deactivate H
+else Klientens oprydning efter BYE
+  C -> C : finish(...)
+  activate C
+  C -> C : Luk socket og afslut futures;\nonDisconnected(...)
+  deactivate C
+end
+note over C, H : Normal QUIT-vej. Klienten lukker også ved EOF, fejl eller efter 2 sekunder.\nLukning afslutter ressourcer og læseløkker; Java-objekter destrueres ikke her.
+caption Klient = brugerflade + ChatConnection + ServerListener. Udvalgte kald; TCP-svar er forkortet.
+@enduml

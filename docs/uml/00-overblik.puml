@@ -1,0 +1,151 @@
+@startuml
+!pragma layout smetana
+set namespaceSeparator none
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam classFontSize 14
+skinparam classAttributeFontSize 12
+skinparam packageFontSize 16
+skinparam ArrowFontSize 12
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classFontColor black
+skinparam classHeaderBackgroundColor white
+skinparam packageBackgroundColor white
+skinparam packageBorderColor black
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam nodesep 70
+skinparam ranksep 95
+hide circle
+hide empty members
+
+title Chatprogram — strukturelt overblik
+package "chat.client.console" {
+class "+ ChatClient\n{leaf}" as ChatClient {
+}
+}
+package "chat.client.gui" {
+class "+ ChatApplication\n{leaf}" as ChatApplication {
+}
+class "- ChatApplication::Pending\n{leaf}" as ChatApplication_Pending <<enumeration>> {
+}
+class "listener callback" as ChatApplication_ListenerCallback <<anonymous>> {
+}
+class "~ MessageCell\n{leaf}" as MessageCell {
+}
+}
+package "chat.client" {
+class "+ ChatConnection\n{leaf}" as ChatConnection {
+}
+class "- ChatConnection::IoOperation" as ChatConnection_IoOperation <<interface>> {
+}
+class "+ ConnectionListener" as ConnectionListener <<interface>> {
+}
+class "+ ServerListener\n{leaf}" as ServerListener {
+}
+}
+package "chat.server" {
+class "+ ChatServer\n{leaf}" as ChatServer {
+}
+class "+ ChatService\n{leaf}" as ChatService {
+}
+class "+ ChatState\n{leaf}" as ChatState {
+}
+class "+ ChatState::LoginResult\n{leaf}" as ChatState_LoginResult <<enumeration>> {
+}
+class "+ ChatState::MoveResult\n{leaf}" as ChatState_MoveResult <<enumeration>> {
+}
+class "+ ChatState::Session\n{leaf}" as ChatState_Session <<record>> {
+}
+class "- ChatState::Membership\n{leaf}" as ChatState_Membership {
+}
+class "+ ClientHandler\n{leaf}" as ClientHandler {
+}
+class "+ ClientPeer" as ClientPeer <<interface>> {
+}
+}
+package "chat.protocol" {
+class "+ ChatProtocol\n{leaf}" as ChatProtocol {
+}
+class "+ ClientMessage\n{leaf}" as ClientMessage <<record>> {
+}
+class "+ MessageParser\n{leaf}" as MessageParser {
+}
+class "+ MessageType\n{leaf}" as MessageType <<enumeration>> {
+}
+class "+ ProtocolException" as ProtocolException {
+}
+class "+ ServerMessage\n{leaf}" as ServerMessage <<record>> {
+}
+}
+package "java.lang" {
+interface "AutoCloseable" as AutoCloseable <<external>>
+class "IllegalArgumentException" as IllegalArgumentException <<external>>
+interface "Runnable" as Runnable <<external>>
+}
+package "javafx.application" {
+abstract class "Application" as Application <<external>>
+}
+package "javafx.scene.control" {
+class "  ListCell⟨ServerMessage⟩  " as ListCell <<external>>
+}
+ChatServer ..|> AutoCloseable
+ChatConnection ..|> AutoCloseable
+ClientPeer --|> AutoCloseable
+ClientHandler ..|> Runnable
+ServerListener ..|> Runnable
+ClientHandler ..|> ClientPeer
+ChatClient ..|> ConnectionListener
+ChatApplication_ListenerCallback ..|> ConnectionListener
+ChatApplication --|> Application
+MessageCell --|> ListCell
+ProtocolException --|> IllegalArgumentException
+ChatServer "0..1" --> "1" ChatService : service
+ChatServer "0..1" --> "0..*" ClientHandler : connections\n{size <= maxClients}
+ClientHandler "0..*" --> "1" ChatService : service
+ChatService "0..*" --> "1" ChatState : state
+ChatState "0..1" *--> "0..*" ChatState_Membership : connections: values
+ChatState "0..*" --> "0..*" ClientPeer : connections: keys\nusers: values / rooms: members
+ChatState_Session "0..*" --> "0..1" ClientPeer : peer {readOnly}
+ChatClient "0..1" --> "1" ChatConnection : connection
+ChatApplication "0..1" --> "0..1" ChatConnection : connection
+ChatConnection "0..*" --> "1" ConnectionListener : listener {readOnly}
+ChatApplication "0..*" --> "0..*" ServerMessage : messages
+ChatClient "0..*" --> "0..1" MessageType : awaitingReply
+ChatApplication "0..*" --> "1" ChatApplication_Pending : pending
+ClientMessage "0..*" --> "0..1" MessageType : type {readOnly}
+ServerMessage "0..*" --> "0..1" MessageType : type {readOnly}
+ChatApplication_ListenerCallback "0..*" --> "1" ChatApplication : omsluttende instans\n{implicit reference}
+ChatApplication ..> ChatApplication_ListenerCallback : «create»
+ChatApplication ..> MessageCell : «create»
+ChatConnection ..> ServerListener : «create»
+ChatConnection ..> ChatConnection_IoOperation : bruger
+ChatState ..> ChatState_Session : «create»
+ChatState ..> ChatState_LoginResult : returnerer
+ChatState ..> ChatState_MoveResult : returnerer
+MessageParser ..> ClientMessage : «create» / validerer
+MessageParser ..> ServerMessage : «create» / validerer
+MessageParser ..> ProtocolException : «create»
+ChatConnection ..> MessageParser : formaterer
+ServerListener ..> MessageParser : parser
+ClientHandler ..> MessageParser : parser / formaterer
+ChatState ..> ChatProtocol : rumkonstanter
+legend bottom left
++ public    - private    # protected    ~ package
+Understreget = static; kursiv = abstract; {readOnly} = final felt; {leaf} = ingen underklasser
+«record», «anonymous», «external» og {default}/{volatile} er Java-markeringer.
+A::B er en indre type B i A. Multipliciteter ved pile angiver antal referencer.
+Fuld linje: association. Sort diamant: komposition. Stiplet pil: afhængighed.
+Hul trekant: arv (fuld linje) / interface-realisering (stiplet linje).
+Alle 24 egne typer; medlemmer er skjult i denne oversigtsvisning.
+Eksterne typer vises kun som direkte supertyper.
+Multipliciteter gælder velformet kørsel; record-komponenter kan være null.
+Øvrig brug af typer fremgår af signaturer og README; ikke alle metodekald har en pil.
+endlegend
+@enduml

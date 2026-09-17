@@ -1,0 +1,131 @@
+@startuml
+!pragma layout smetana
+set namespaceSeparator none
+skinparam monochrome true
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam classFontSize 14
+skinparam classAttributeFontSize 12
+skinparam packageFontSize 16
+skinparam ArrowFontSize 12
+skinparam classBackgroundColor white
+skinparam classBorderColor black
+skinparam classFontColor black
+skinparam classHeaderBackgroundColor white
+skinparam packageBackgroundColor white
+skinparam packageBorderColor black
+skinparam ArrowColor black
+skinparam ArrowThickness 1
+skinparam nodesep 70
+skinparam ranksep 95
+hide circle
+hide empty members
+
+title Chatprogram — protokol
+package "chat.protocol" {
+class "+ ChatProtocol\n{leaf}" as ChatProtocol {
+  {static} + DEFAULT_HOST: String {readOnly}
+  {static} + DEFAULT_PORT: int {readOnly}
+  {static} + ROOMS: List<String> {readOnly}
+  {static} + START_ROOM: String {readOnly}
+  --
+  - ChatProtocol()
+}
+class "+ ClientMessage\n{leaf}" as ClientMessage <<record>> {
+  - type: MessageType {readOnly}
+  - target: String {readOnly}
+  - payload: String {readOnly}
+  --
+  .. genereret af Java ..
+  + ClientMessage(type: MessageType, target: String, payload: String)
+  + type(): MessageType
+  + target(): String
+  + payload(): String
+  + equals(other: Object): boolean
+  + hashCode(): int
+  + toString(): String
+}
+class "+ MessageParser\n{leaf}" as MessageParser {
+  {static} - TIMESTAMP_FORMAT: DateTimeFormatter {readOnly}
+  --
+  - MessageParser()
+  {static} + parseClient(line: String): ClientMessage
+  {static} + parseServer(line: String): ServerMessage
+  {static} + format(message: ClientMessage): String
+  {static} + format(message: ServerMessage): String
+  {static} - validateClient(message: ClientMessage): void
+  {static} - validateServer(message: ServerMessage): void
+  {static} - parseType(value: String): MessageType
+  {static} - parseTimestamp(value: String): LocalDateTime
+  {static} - requireField(value: String, name: String): void
+  {static} - requireSingleLine(value: String, name: String): void
+  {static} - requireText(value: String, name: String): void
+  {static} - requireEmpty(value: String, name: String): void
+  {static} - requireServerSender(sender: String): void
+}
+class "+ MessageType\n{leaf}" as MessageType <<enumeration>> {
+  LOGIN
+  JOIN_ROOM
+  TEXT
+  PRIVATE
+  QUIT
+  LOGIN_OK
+  ROOM_JOINED
+  INFO
+  ERROR
+  BYE
+  --
+  .. genereret af Java ..
+  {static} + values(): MessageType[]
+  {static} + valueOf(name: String): MessageType
+}
+class "+ ProtocolException" as ProtocolException {
+  --
+  + ProtocolException(message: String)
+  + ProtocolException(message: String, cause: Throwable)
+}
+class "+ ServerMessage\n{leaf}" as ServerMessage <<record>> {
+  - timestamp: LocalDateTime {readOnly}
+  - type: MessageType {readOnly}
+  - sender: String {readOnly}
+  - target: String {readOnly}
+  - payload: String {readOnly}
+  --
+  .. genereret af Java ..
+  + ServerMessage(timestamp: LocalDateTime, type: MessageType, sender: String, target: String, payload: String)
+  + timestamp(): LocalDateTime
+  + type(): MessageType
+  + sender(): String
+  + target(): String
+  + payload(): String
+  + equals(other: Object): boolean
+  + hashCode(): int
+  + toString(): String
+}
+}
+package "java.lang" {
+class "IllegalArgumentException" as IllegalArgumentException <<external>>
+}
+ProtocolException --|> IllegalArgumentException
+ClientMessage "0..*" --> "0..1" MessageType : type {readOnly}
+ServerMessage "0..*" --> "0..1" MessageType : type {readOnly}
+MessageParser ..> ClientMessage : «create» / validerer
+MessageParser ..> ServerMessage : «create» / validerer
+MessageParser ..> ProtocolException : «create»
+legend bottom left
++ public    - private    # protected    ~ package
+Understreget = static; kursiv = abstract; {readOnly} = final felt; {leaf} = ingen underklasser
+«record», «anonymous», «external» og {default}/{volatile} er Java-markeringer.
+A::B er en indre type B i A. Multipliciteter ved pile angiver antal referencer.
+Fuld linje: association. Sort diamant: komposition. Stiplet pil: afhængighed.
+Hul trekant: arv (fuld linje) / interface-realisering (stiplet linje).
+Fokuspakker med felter og operationer; tomme egne typer er med som kontekst.
+Eksterne typer vises kun som direkte supertyper.
+Multipliciteter gælder velformet kørsel; record-komponenter kan være null.
+Øvrig brug af typer fremgår af signaturer og README; ikke alle metodekald har en pil.
+endlegend
+@enduml
